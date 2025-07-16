@@ -3,19 +3,17 @@
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import emailjs from "@emailjs/browser"; // Add EmailJS
-import axios from "axios";
 
 const InnerPage = () => {
   const searchParams = useSearchParams();
   const formRef = useRef(null);
 
   const [registrationNumber, setRegistrationNumber] = useState("");
-  const [paymentToken, setPaymentToken] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false); // loading state
-  const [isTokenLoading, setIsTokenLoading] = useState(true); // loading state
+  const [currentStep, setCurrentStep] = useState(1); // 1 for Precheck, 2 for Payment
 
   useEffect(() => {
     const regNumber = searchParams.get("reg");
@@ -25,104 +23,66 @@ const InnerPage = () => {
   }, [searchParams]);
 
   useEffect(() => {
-    handleGetPaymentToken()
-      .then((data) => setPaymentToken(data))
-      .catch((err) => alert(err))
-      .finally(() => setIsTokenLoading(false));
-  }, []);
-
-  const handleGetPaymentToken = async () => {
-    const params = {
-      getHostedPaymentPageRequest: {
-        merchantAuthentication: {
-          name: process.env.NEXT_PUBLIC_API_LOGIN_ID,
-          transactionKey: process.env.NEXT_PUBLIC_TRANSACTION_KEY,
+    console.log('currentStep (result page):', currentStep); // Debugging line for result page
+    console.log('window.paypal (result page):', window.paypal); // Debugging line for result page
+    if (currentStep === 2 && window.paypal) {
+      window.paypal.Buttons({
+        createOrder: async (data, actions) => {
+          try {
+            const response = await fetch('/api/paypal/create-order', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                amount: "39.99", // Basic package price
+              }),
+            });
+            const order = await response.json();
+            if (order.id) {
+              return order.id;
+            } else {
+              throw new Error('Failed to create PayPal order');
+            }
+          } catch (error) {
+            console.error('Error creating order:', error);
+            alert('Could not set up PayPal order. Please try again.');
+            return null; // Return null to indicate an error
+          }
         },
-        transactionRequest: {
-          transactionType: "authCaptureTransaction",
-          amount: "39.99",
+        onApprove: async (data, actions) => {
+          try {
+            const response = await fetch('/api/paypal/capture-order', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                orderID: data.orderID,
+              }),
+            });
+            const capture = await response.json();
+            if (capture.status === 'COMPLETED') {
+              alert('Payment successful!');
+              sendReportEmail(); // Call a new function to send email
+            } else {
+              throw new Error('Payment not completed');
+            }
+          } catch (error) {
+            console.error('Error capturing payment:', error);
+            alert('Payment failed. Please try again.');
+          }
         },
-        hostedPaymentSettings: {
-          setting: [
-            {
-              settingName: "hostedPaymentReturnOptions",
-              settingValue: `{"showReceipt": true, "url": "${process.env.NEXT_PUBLIC_BASE_URL}", "urlText": "Continue", "cancelUrl": "${process.env.NEXT_PUBLIC_BASE_URL}", "cancelUrlText": "Cancel"}`,
-            },
-            {
-              settingName: "hostedPaymentButtonOptions",
-              settingValue: '{"text": "Pay"}',
-            },
-            {
-              settingName: "hostedPaymentStyleOptions",
-              settingValue: '{"bgColor": "blue"}',
-            },
-            {
-              settingName: "hostedPaymentPaymentOptions",
-              settingValue:
-                '{"cardCodeRequired": true, "showCreditCard": true, "showBankAccount": true}',
-            },
-            {
-              settingName: "hostedPaymentSecurityOptions",
-              settingValue: '{"captcha": false}',
-            },
-            {
-              settingName: "hostedPaymentShippingAddressOptions",
-              settingValue: '{"show": false, "required": false}',
-            },
-            {
-              settingName: "hostedPaymentBillingAddressOptions",
-              settingValue: '{"show": false, "required": false}',
-            },
-            {
-              settingName: "hostedPaymentCustomerOptions",
-              settingValue:
-                '{"showEmail": false, "requiredEmail": false, "addPaymentProfile": false}',
-            },
-            {
-              settingName: "hostedPaymentOrderOptions",
-              settingValue:
-                '{"show": true, "merchantName": "Vehicle Inspectify"}',
-            },
-          ],
+        onError: (err) => {
+          console.error('PayPal button error:', err);
+          alert('An error occurred with PayPal. Please try again.');
         },
-      },
-    };
-
-    const response = await axios.post(
-      process.env.NEXT_PUBLIC_API_ENDPOINT,
-      params,
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (response?.data?.messages?.resultCode == "Ok") {
-      return response?.data?.token;
-    } else {
-      console.error(response?.data?.messages?.message[0]?.text);
-      throw new Error("Payment Initialization Failed!");
+      }).render('#paypal-button-container');
     }
-  };
+  }, [currentStep]);
 
-  const handleGetReport = async (e) => {
-    e.preventDefault();
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!fullName || !email || !phone || !registrationNumber) {
-      alert("Please fill in all fields before proceeding.");
-      return;
-    }
-
-    if (!emailRegex.test(email)) {
-      alert("Please enter a valid email address.");
-      return;
-    }
-
+  const sendReportEmail = async () => {
     setIsLoading(true);
-
     try {
       const templateParams = {
         name: fullName,
@@ -139,13 +99,31 @@ const InnerPage = () => {
       );
 
       console.log("Email sent successfully!");
-      formRef.current.submit();
+      // Optionally redirect or show success message after email sent
     } catch (error) {
       console.error("Email sending error:", error);
       alert("Something went wrong while sending email. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePrecheckSubmit = async (e) => {
+    e.preventDefault();
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!fullName || !email || !phone || !registrationNumber) {
+      alert("Please fill in all fields before proceeding.");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+    console.log('Setting currentStep to 2 (result page)'); // Debugging line for result page
+    setCurrentStep(2); // Move to payment step
   };
 
   const [emailError, setEmailError] = useState("");
@@ -155,24 +133,24 @@ const InnerPage = () => {
       {/* Progress Steps */}
       <div className="flex items-center px-4 py-2 bg-white border-b">
         <div className="flex items-center">
-          <div className="bg-black text-white rounded-full w-6 h-6 flex items-center justify-center text-xs">
+          <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${currentStep === 1 ? 'bg-black text-white' : 'bg-white border border-gray-300 text-gray-500'}`}>
             1
           </div>
-          <span className="ml-2 text-sm font-medium">Precheck</span>
+          <span className={`ml-2 text-sm font-medium ${currentStep === 1 ? 'text-black' : 'text-gray-500'}`}>Precheck</span>
         </div>
         <div className="h-px bg-gray-300 w-8 mx-2"></div>
-        <div className="flex items-center text-gray-500">
-          <div className="bg-white border border-gray-300 rounded-full w-6 h-6 flex items-center justify-center text-xs">
+        <div className="flex items-center">
+          <div className={`rounded-full w-6 h-6 flex items-center justify-center text-xs ${currentStep === 2 ? 'bg-black text-white' : 'bg-white border border-gray-300 text-gray-500'}`}>
             2
           </div>
-          <span className="ml-2 text-sm font-medium">Payment</span>
+          <span className={`ml-2 text-sm font-medium ${currentStep === 2 ? 'text-black' : 'text-gray-500'}`}>Payment</span>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         <div className="flex flex-col md:flex-row gap-6">
-          {/* Left Section */}
-          <div className="flex-1">
+          {/* Left Section (Precheck Form) */}
+          <div className="flex-1" style={{ display: currentStep === 1 ? 'block' : 'none' }}>
             <div className="mb-6">
               <h2 className="text-xl font-bold">
                 Success! We've detected this vehicle and its previous data
@@ -188,7 +166,7 @@ const InnerPage = () => {
             <div className="bg-gray-400 p-6 rounded">
               <h3 className="text-lg font-bold mb-4">Let's Get Started</h3>
 
-              <form>
+              <form onSubmit={handlePrecheckSubmit}>
                 <div className="space-y-4">
                   <input
                     type="text"
@@ -232,11 +210,20 @@ const InnerPage = () => {
                     onChange={(e) => setRegistrationNumber(e.target.value)}
                   />
                 </div>
+                <div className="mt-6">
+                  <button
+                    type="submit"
+                    className="w-full bg-blue-500 text-white p-3 rounded-md font-semibold"
+                    disabled={isLoading}
+                  >
+                    {isLoading ? "Processing..." : "Get My Report"}
+                  </button>
+                </div>
               </form>
             </div>
           </div>
 
-          {/* Right Section */}
+          {/* Right Section (Payment Details) */}
           <div className="md:w-2/5">
             <div className="bg-white p-6 border rounded">
               <h3 className="text-lg mb-4">
@@ -253,86 +240,27 @@ const InnerPage = () => {
                   "Previous Usage Check",
                   "Vehicle Valuation",
                   "Owner History",
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-start">
-                    <span className="text-green-600 mr-1">✓</span>
-                    <span className="text-sm">{item}</span>
+                ].map((feature, i) => (
+                  <div key={i} className="flex items-center text-sm">
+                    <svg
+                      className="w-4 h-4 text-green-500 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      ></path>
+                    </svg>
+                    {feature}
                   </div>
                 ))}
               </div>
-
-              <div className="mt-8 border p-4 rounded">
-                <div className="flex items-center mb-4">
-                  <input
-                    type="checkbox"
-                    id="checkReport"
-                    className="mr-2 h-5 w-5"
-                  />
-                  <label htmlFor="checkReport" className="font-medium">
-                    Check Report
-                  </label>
-                </div>
-
-                <div className="mb-2">
-                  <span className="text-2xl font-bold">$39.99</span>
-                  <span className="text-sm"> report</span>
-                </div>
-
-                <div className="text-sm mb-2">
-                  You pay $39.99 <span className="line-through">$50.00</span>
-                </div>
-
-                <div className="bg-red-300 text-red-700 w-16 text-center py-1 mb-4 rounded">
-                  -31.77%
-                </div>
-
-                <div className="border-t pt-4 flex items-center text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <span className="mr-2 flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-800">
-                      ✓
-                    </span>
-                    You'll get report
-                  </div>
-                  <div className="ml-auto bg-gray-200 rounded-full h-5 w-5 flex items-center justify-center text-gray-400">
-                    i
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 flex justify-center">
-              {paymentToken ? (
-                <form
-                  method="post"
-                  action={process.env.NEXT_PUBLIC_PAYMENT_ENDPOINT}
-                  onSubmit={handleGetReport}
-                  ref={formRef}
-                >
-                  <input type="hidden" name="token" value={paymentToken} />
-                  <button
-                    disabled={isLoading || emailError}
-                    className={`bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded font-medium ${
-                      isLoading || emailError
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    {isLoading ? "Sending..." : "Get Report"}
-                  </button>
-                </form>
-              ) : (
-                <div
-                  className={`text-black px-6 py-2 rounded font-medium ${
-                    isTokenLoading
-                      ? "bg-yellow-400 opacity-50 cursor-not-allowed"
-                      : "bg-red-400"
-                  }`}
-                >
-                  {isTokenLoading
-                    ? "Loading..."
-                    : "We cannot process your request right now!"}
-                </div>
-              )}
+              <div id="paypal-button-container" className="mt-4" style={{ display: currentStep === 2 ? 'block' : 'none' }}></div>
             </div>
           </div>
         </div>
