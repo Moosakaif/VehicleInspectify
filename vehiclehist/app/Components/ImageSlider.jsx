@@ -13,7 +13,7 @@ const ImageSlider = () => {
   };
 
   const images = [
-    "/website 1.png",
+    "/slider-22.png",
     "/slider-2.png",
   ];
 
