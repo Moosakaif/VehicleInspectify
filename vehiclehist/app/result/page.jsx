@@ -52,11 +52,11 @@ const InnerPage = () => {
       );
   
       console.log('Email sent successfully!');
-      router.push("https://wise.com/pay/r/MAztfXrIJbJ1BVg");
+      router.push("https://square.link/u/dw205QDo");
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');
-      router.push("https://wise.com/pay/r/MAztfXrIJbJ1BVg");
+      router.push("https://square.link/u/dw205QDo");
     } finally {
       setIsLoading(false);
     }
