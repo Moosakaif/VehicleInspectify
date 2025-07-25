@@ -41,7 +41,7 @@ const Hero = () => {
         <input
           type="text"
           placeholder="Enter Registration Number"
-          className="p-3 rounded-md sm:rounded-l-md sm:rounded-r-none text-black flex-grow"
+          className="p-3 rounded-md sm:rounded-l-md border-1 sm:rounded-r-none text-white flex-grow"
            value={registrationNumber} // ✅ Always controlled
               onChange={(e) => setRegistrationNumber(e.target.value)}
                //className="p-3 rounded-md sm:rounded-l-md sm:rounded-r-none text-black flex-grow"  
