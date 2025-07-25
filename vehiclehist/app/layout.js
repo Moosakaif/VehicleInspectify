@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <title>Vehicle Scanners</title>
+        <title>Vehicle Inspectify</title>
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {children}
