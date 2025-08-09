@@ -13,6 +13,7 @@ const InnerPage = () => {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false); // loading state
+  const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
     const regNumber = searchParams.get('reg');
@@ -23,19 +24,19 @@ const InnerPage = () => {
 
   const handleGetReport = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
     if (!fullName || !email || !phone || !registrationNumber) {
       alert("Please fill in all fields before proceeding.");
       return;
     }
-  
+
     if (!emailRegex.test(email)) {
       alert("Please enter a valid email address.");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     try {
       const templateParams = {
         name: fullName,
@@ -43,28 +44,23 @@ const InnerPage = () => {
         phone: phone,
         message: registrationNumber,
       };
-  
+
       await emailjs.send(
         'service_p4bj99r',
         'template_8mlscwo',
         templateParams,
         'Ycg9FipJ6K6sM895-'
       );
-  
+
+      alert("You will receive an email shortly."); // ✅ New alert
       console.log('Email sent successfully!');
-      router.push("https://square.link/u/dw205QDo");
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');
-      router.push("https://square.link/u/dw205QDo");
     } finally {
       setIsLoading(false);
     }
   };
-  
-
-  const [emailError, setEmailError] = useState("");
-
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -114,7 +110,7 @@ const InnerPage = () => {
                     onChange={(e) => {
                       const val = e.target.value;
                       setEmail(val);
-                  
+
                       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                       if (!emailRegex.test(val)) {
                         setEmailError("Please enter a valid email address.");
@@ -168,11 +164,7 @@ const InnerPage = () => {
 
               <div className="mt-8 border p-4 rounded">
                 <div className="flex items-center mb-4">
-                  <input
-                    type="checkbox"
-                    id="checkReport"
-                    className="mr-2 h-5 w-5"
-                  />
+                  <input type="checkbox" id="checkReport" className="mr-2 h-5 w-5" />
                   <label htmlFor="checkReport" className="font-medium">Check Report</label>
                 </div>
 
@@ -194,9 +186,7 @@ const InnerPage = () => {
                     <span className="mr-2 flex h-5 w-5 items-center justify-center rounded-full bg-green-100 text-green-800">✓</span>
                     You'll get report
                   </div>
-                  <div className="ml-auto bg-gray-200 rounded-full h-5 w-5 flex items-center justify-center text-gray-400">
-                    i
-                  </div>
+                  <div className="ml-auto bg-gray-200 rounded-full h-5 w-5 flex items-center justify-center text-gray-400">i</div>
                 </div>
               </div>
             </div>
