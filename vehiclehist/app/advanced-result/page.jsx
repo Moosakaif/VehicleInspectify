@@ -1,18 +1,18 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import emailjs from '@emailjs/browser'; // Add EmailJS
 
 const InnerPage = () => {
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false); // loading state
+  const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
     const regNumber = searchParams.get('reg');
@@ -23,19 +23,19 @@ const InnerPage = () => {
 
   const handleGetReport = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
     if (!fullName || !email || !phone || !registrationNumber) {
       alert("Please fill in all fields before proceeding.");
       return;
     }
-  
+
     if (!emailRegex.test(email)) {
       alert("Please enter a valid email address.");
       return;
     }
-  
+
     setIsLoading(true);
-  
+
     try {
       const templateParams = {
         name: fullName,
@@ -43,28 +43,23 @@ const InnerPage = () => {
         phone: phone,
         message: registrationNumber,
       };
-  
+
       await emailjs.send(
         'service_p4bj99r',
         'template_8mlscwo',
         templateParams,
         'Ycg9FipJ6K6sM895-'
       );
-  
+
+      alert("You will receive an email shortly."); // ✅ Added success alert
       console.log('Email sent successfully!');
-      router.push("https://square.link/u/xALBdG6p");
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');
-      router.push("https://square.link/u/xALBdG6p");
     } finally {
       setIsLoading(false);
     }
   };
-  
-
-  const [emailError, setEmailError] = useState("");
-
 
   return (
     <div className="bg-gray-100 min-h-screen">
@@ -114,7 +109,7 @@ const InnerPage = () => {
                     onChange={(e) => {
                       const val = e.target.value;
                       setEmail(val);
-                  
+
                       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                       if (!emailRegex.test(val)) {
                         setEmailError("Please enter a valid email address.");
