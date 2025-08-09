@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import emailjs from '@emailjs/browser'; // Add EmailJS
+import { useSearchParams, useRouter } from 'next/navigation';
+import emailjs from '@emailjs/browser';
 
 const InnerPage = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
@@ -51,8 +52,8 @@ const InnerPage = () => {
         'Ycg9FipJ6K6sM895-'
       );
 
-      alert("You will receive an email shortly."); // ✅ Added success alert
-      console.log('Email sent successfully!');
+      alert("You will receive an email shortly."); // ✅ Show success alert
+      router.push("/thank-you"); // ✅ Redirect after alert
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');

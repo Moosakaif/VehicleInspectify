@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import emailjs from '@emailjs/browser'; // Add EmailJS
+import emailjs from '@emailjs/browser';
 
 const InnerPage = () => {
   const searchParams = useSearchParams();
@@ -12,7 +12,7 @@ const InnerPage = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [isLoading, setIsLoading] = useState(false); // loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
@@ -52,8 +52,8 @@ const InnerPage = () => {
         'Ycg9FipJ6K6sM895-'
       );
 
-      alert("You will receive an email shortly."); // ✅ New alert
-      console.log('Email sent successfully!');
+      alert("You will receive an email shortly."); // ✅ Alert after success
+      router.push("/thank-you"); // ✅ Redirect after alert
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');
