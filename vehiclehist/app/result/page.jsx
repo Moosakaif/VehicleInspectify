@@ -53,7 +53,7 @@ const InnerPage = () => {
       );
 
       alert("You will receive an email shortly."); // ✅ Alert after success
-      router.push("/thank-you"); // ✅ Redirect after alert
+      router.push("/checkout"); // ✅ Redirect after alert
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');
