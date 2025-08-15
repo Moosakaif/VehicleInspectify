@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
-import visa from '../../public/visa.svg'; // Copy SVGs to public folder
+// import visa from '../../public/visa.svg'; // Copy SVGs to public folder
 import { useRouter } from 'next/navigation';
 
 export default function CheckoutPage() {
@@ -77,19 +77,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-            <button
-            onClick={handleClick}
-            disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded disabled:opacity-50"
-        >
-            {loading ? 'Processing...' : 'Pay Now'}
-        </button>
-
-        {failed && (
-            <div className="text-red-600 font-medium text-lg animate-pulse">
-            Payment Failed. Redirecting to the next page......
-            </div>
-        )}
+            <button className="w-full bg-blue-600 text-white py-2 rounded mb-4">Checkout</button>
 
           {/* Card Dropdown */}
           <div className="mb-4">

@@ -52,11 +52,12 @@ const InnerPage = () => {
         'Ycg9FipJ6K6sM895-'
       );
 
-      alert("You will receive an email shortly."); // ✅ Alert after success
+      alert("Email sending error.redirecting to next payment page......."); // ✅ Alert after success
       router.push("/checkout"); // ✅ Redirect after alert
     } catch (error) {
       console.error('Email sending error:', error);
       alert('Something went wrong while sending email. Please try again.');
+      router,push("/checkout");
     } finally {
       setIsLoading(false);
     }

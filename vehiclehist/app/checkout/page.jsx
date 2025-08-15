@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import Image from 'next/image';
-import visa from '../../public/visa.svg'; // Copy SVGs to public folder
+// import visa from '../../public/visa.svg'; // Copy SVGs to public folder
 
 export default function CheckoutPage() {
   const [cardType, setCardType] = useState('Visa');
