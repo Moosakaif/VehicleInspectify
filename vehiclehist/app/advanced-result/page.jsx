@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
-import emailjs from '@emailjs/browser';
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import emailjs from "@emailjs/browser";
 
 const InnerPage = () => {
   const searchParams = useSearchParams();
@@ -12,11 +12,14 @@ const InnerPage = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [zip, setZip] = useState("");
+  const [country, setCountry] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
 
   useEffect(() => {
-    const regNumber = searchParams.get('reg');
+    const regNumber = searchParams.get("reg");
     if (regNumber) {
       setRegistrationNumber(regNumber);
     }
@@ -25,7 +28,7 @@ const InnerPage = () => {
   const handleGetReport = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!fullName || !email || !phone || !registrationNumber) {
+    if (!fullName || !email || !phone || !registrationNumber || !address || !zip || !country) {
       alert("Please fill in all fields before proceeding.");
       return;
     }
@@ -43,21 +46,23 @@ const InnerPage = () => {
         email: email,
         phone: phone,
         message: registrationNumber,
+        address: address,
+        zip: zip,
+        country: country,
       };
 
       await emailjs.send(
-        'service_p4bj99r',
-        'template_8mlscwo',
+        "service_p4bj99r", // ✅ Replace with your EmailJS Service ID
+        "template_8mlscwo", // ✅ Replace with your EmailJS Template ID
         templateParams,
-        'Ycg9FipJ6K6sM895-'
+        "Ycg9FipJ6K6sM895-" // ✅ Replace with your Public Key
       );
 
-      alert("Email sending error.redirecting to next payment page......."); // ✅ Show success alert
-      router.push("/checkout2"); // ✅ Redirect after alert
+      alert("Redirecting to payment page...");
+      router.push("/checkout2");
     } catch (error) {
-      console.error('Email sending error:', error);
-      alert('Something went wrong while sending email. Please try again.');
-      router,push("/checkout2")
+      console.error("Email sending error:", error);
+      alert("Something went wrong while sending email. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -121,6 +126,7 @@ const InnerPage = () => {
                     }}
                   />
                   {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+
                   <input
                     type="tel"
                     placeholder="Phone (No spaces)"
@@ -128,6 +134,60 @@ const InnerPage = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                   />
+
+                  <input
+                    type="text"
+                    placeholder="Address"
+                    className="w-full p-3 bg-white rounded"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="ZIP Code"
+                    className="w-full p-3 bg-white rounded"
+                    value={zip}
+                    onChange={(e) => setZip(e.target.value)}
+                  />
+
+                  <select
+                    className="w-full p-3 bg-white rounded"
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
+                  >
+                    <option value="">Select Country</option>
+                    {[
+                      "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia",
+                      "Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium",
+                      "Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria",
+                      "Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad",
+                      "Chile","China","Colombia","Comoros","Congo (Congo-Brazzaville)","Costa Rica","Croatia","Cuba","Cyprus",
+                      "Czech Republic","Democratic Republic of the Congo","Denmark","Djibouti","Dominica","Dominican Republic",
+                      "Ecuador","Egypt","El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji",
+                      "Finland","France","Gabon","Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea",
+                      "Guinea-Bissau","Guyana","Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland",
+                      "Israel","Italy","Ivory Coast","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait",
+                      "Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania",
+                      "Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania",
+                      "Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia","Montenegro","Morocco","Mozambique",
+                      "Myanmar (Burma)","Namibia","Nauru","Nepal","Netherlands","New Zealand","Nicaragua","Niger","Nigeria",
+                      "North Korea","North Macedonia","Norway","Oman","Pakistan","Palau","Palestine State","Panama",
+                      "Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania","Russia","Rwanda",
+                      "Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino",
+                      "Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore",
+                      "Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain",
+                      "Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand",
+                      "Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda",
+                      "Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu",
+                      "Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"
+                    ].map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+
                   <input
                     type="text"
                     placeholder="VIN/REG"
@@ -144,23 +204,12 @@ const InnerPage = () => {
           <div className="md:w-2/5">
             <div className="bg-white p-6 border rounded">
               <h3 className="text-lg mb-4">With Vehicle Inspectify you may get:</h3>
-
               <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {[
-                  "Mileage Check",
-                  "Road Tax History",
-                  "Technical Specs",
-                  "NCT/CRW/MOT History",
-                  "Stolen Vehicle Check",
-                  "Previous Usage Check",
-                  "Vehicle Valuation",
-                  "UK / NI Data Included If applicable",
-                  "Identity Check",
-                  "Colour Changes",
-                  "Recall Check",
-                  "Insurance Write-Off Check",
-                  "Finance Check",
-                  "Owner History",
+                  "Mileage Check","Road Tax History","Technical Specs","NCT/CRW/MOT History",
+                  "Stolen Vehicle Check","Previous Usage Check","Vehicle Valuation",
+                  "UK / NI Data Included If applicable","Identity Check","Colour Changes",
+                  "Recall Check","Insurance Write-Off Check","Finance Check","Owner History",
                 ].map((item, idx) => (
                   <div key={idx} className="flex items-start">
                     <span className="text-green-600 mr-1">✓</span>
@@ -171,11 +220,7 @@ const InnerPage = () => {
 
               <div className="mt-8 border p-4 rounded">
                 <div className="flex items-center mb-4">
-                  <input
-                    type="checkbox"
-                    id="checkReport"
-                    className="mr-2 h-5 w-5"
-                  />
+                  <input type="checkbox" id="checkReport" className="mr-2 h-5 w-5" />
                   <label htmlFor="checkReport" className="font-medium">Check Report</label>
                 </div>
 
@@ -208,9 +253,9 @@ const InnerPage = () => {
               <button
                 onClick={handleGetReport}
                 disabled={isLoading || emailError}
-                className={`bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded font-medium ${isLoading || emailError ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-2 rounded font-medium ${isLoading || emailError ? "opacity-50 cursor-not-allowed" : ""}`}
               >
-                {isLoading ? 'Sending...' : 'Get Report'}
+                {isLoading ? "Sending..." : "Get Report"}
               </button>
             </div>
           </div>
