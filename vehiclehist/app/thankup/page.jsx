@@ -29,13 +29,13 @@ export default function ThankYouPage() {
         {/* Buttons */}
         <div className="flex flex-col gap-3">
           <Link
-            href="/"
+            href="/Hero.jsx"
             className="bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
           >
             Back to Home
           </Link>
           <Link
-            href="/packages"
+            href="/Packages"
             className="bg-gray-200 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-300 transition"
           >
             View More Packages
