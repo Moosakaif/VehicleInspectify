@@ -52,10 +52,10 @@ const InnerPage = () => {
       };
 
       await emailjs.send(
-        "service_p4bj99r", // ✅ Replace with your EmailJS Service ID
-        "template_8mlscwo", // ✅ Replace with your EmailJS Template ID
+        "service_jcng5l7", // ✅ Replace with your EmailJS Service ID
+        "template_g91tmx9", // ✅ Replace with your EmailJS Template ID
         templateParams,
-        "Ycg9FipJ6K6sM895-" // ✅ Replace with your Public Key
+        "8Dvh1yiV83VL2chss" // ✅ Replace with your Public Key
       );
 
       alert("Redirecting to payment page...");
