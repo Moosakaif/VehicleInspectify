@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Package } from "lucide-react";
 
 export default function ThankYouPage() {
   return (
@@ -17,25 +17,25 @@ export default function ThankYouPage() {
 
         {/* Heading */}
         <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          Payment Successful 🎉
+          Payment Request Sucsessfully Sent 🎉
         </h1>
 
         {/* Message */}
         <p className="text-gray-600 mb-6">
           Thank you for purchasing your package.  
-          Your vehicle report will be delivered to your email shortly.
+          Your payment link will be delivered to your email shortly.
         </p>
 
         {/* Buttons */}
         <div className="flex flex-col gap-3">
           <Link
-            href="/Hero.jsx"
+            href="/"
             className="bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition"
           >
             Back to Home
           </Link>
           <Link
-            href="/Packages"
+            href="/packages"
             className="bg-gray-200 text-gray-800 py-2 rounded-lg font-medium hover:bg-gray-300 transition"
           >
             View More Packages

