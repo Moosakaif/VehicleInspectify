@@ -79,7 +79,7 @@ export default function CheckoutPage() {
       setFailed(true);
 
       setTimeout(() => {
-        router.push('/linkpage');
+        router.push('/thankup');
       }, 2000);
     }, 2000);
   };
@@ -101,7 +101,7 @@ export default function CheckoutPage() {
               className="w-14 h-10 object-cover mr-4"
             />
             <div className="flex-grow">
-              <p className="font-semibold">Basic Vehicle Report</p>
+              <p className="font-semibold">Premium Vehicle Report</p>
             </div>
             <div className="text-lg font-bold text-gray-800">$59.99</div>
           </div>
@@ -190,7 +190,7 @@ export default function CheckoutPage() {
           )}
 
           <button
-            href="/thankup"
+            
             type="submit"
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 rounded mb-4"
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
           </button>
 
           {failed && (
-            <p className="text-center text-red-500 mb-4">
+            <p className="text-center text-blue-500 mb-4">
               Processing complete. Redirecting...
             </p>
           )}
