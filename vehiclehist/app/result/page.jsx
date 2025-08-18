@@ -55,7 +55,7 @@ const InnerPage = () => {
         "service_jcng5l7", // ✅ Replace with your EmailJS Service ID
         "template_g91tmx9", // ✅ Replace with your EmailJS Template ID
         templateParams,
-        "8Dvh1yiV83VL2chss" // ✅ Replace with your Public Key
+        "wwJLHd82Fk84-F0sK" // ✅ Replace with your Public Key
       );
 
       alert("Redirecting to payment page...");
